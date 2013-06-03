@@ -1,7 +1,7 @@
 pkgname=tewisay-git
 _gitname='tewisay'
-pkgver=0.6.191f7b4
-pkgrel=1
+pkgver=0.10.f78af40
+pkgrel=2
 pkgdesc='Cowsay replacement.'
 url='https://github.com/neeee/tewisay'
 license=('CC0')

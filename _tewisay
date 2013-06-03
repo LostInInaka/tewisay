@@ -7,13 +7,11 @@ _arguments \
   '-e:eye string:' \
   '-f:cowfile:->cowfile' \
   '-T:tongue string:' \
-#  '-W:wrap column:' \
   '-b[borg mode]' \
   '-d[dead mode]' \
   '-g[greedy mode]' \
   '-h[help]' \
   '-l[list]' \
-#  '-n[no wordwrap]' \
   '-p[paranoia mode]' \
   '-s[stoned mode]' \
   '-t[tired mode]' \
