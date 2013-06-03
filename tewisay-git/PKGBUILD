@@ -1,0 +1,28 @@
+pkgname=tewisay-git
+_gitname='tewisay'
+pkgver=0.6.191f7b4
+pkgrel=1
+pkgdesc='Cowsay replacement.'
+url='https://github.com/neeee/tewisay'
+license=('CC0')
+makedepends=('go')
+arch=('i686' 'x86_64' 'ARM')
+source=('git://github.com/neeee/tewisay.git')
+md5sums=('SKIP')
+
+pkgver() {
+	cd "$srcdir/$_gitname"
+	echo "0.$(git rev-list --count HEAD).$(git describe --always )"
+}
+
+build() {
+	cd "$srcdir/$_gitname"
+	go build
+}
+
+package() {
+	cd "$srcdir/$_gitname"
+
+	install -Dm755 tewisay "$pkgdir/usr/bin/tewisay"
+	ln -s "tewisay" "$pkgdir/usr/bin/tewithink"
+}
