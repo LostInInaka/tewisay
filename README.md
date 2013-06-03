@@ -1,6 +1,7 @@
+Make a symlink called `tewithink` to tewisay to use the thinking balloon.
+
 TODO
 ----
-* tewithink
 * Reading stdin
 * (maybe?) Wrapping
 
