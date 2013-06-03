@@ -11,8 +11,20 @@ import (
 )
 
 var (
-	cowfile = flag.String("f", "", "what cowfile to use")
+	cowfile = flag.String("f", "default", "what cowfile to use")
 	think   = path.Base(os.Args[0]) == "tewithink"
+
+	tongue = flag.String("T", "  ", "change tounges")
+	eyes   = flag.String("e", "oo", "change tounges")
+
+	borg     = flag.Bool("b", false, "borg")
+	dead     = flag.Bool("d", false, "dead")
+	greedy   = flag.Bool("g", false, "greedy")
+	paranoid = flag.Bool("p", false, "noided")
+	stoned   = flag.Bool("s", false, "stoned")
+	tired    = flag.Bool("t", false, "tired")
+	wired    = flag.Bool("w", false, "wired")
+	young    = flag.Bool("y", false, "young")
 )
 
 const (
@@ -29,9 +41,34 @@ const (
 )
 
 func prepare(cow string) string {
+	// fuck.
+	switch {
+	case *borg:
+		*eyes = "=="
+	case *dead:
+		*eyes = "xx"
+		*tongue = "U "
+	case *greedy:
+		*eyes = "$$"
+	case *paranoid:
+		*eyes = "@@"
+	case *stoned:
+		*eyes = "**"
+		*tongue = "U "
+	case *tired:
+		*eyes = "--"
+	case *wired:
+		*eyes = "OO"
+	case *young:
+		*eyes = ".."
+	}
+
 	for old, neu := range map[string]string{
-		"$the_cow = <<EOC;\n": "",
-		"\nEOC":               "",
+		"$the_cow = <<EOC;\n":     "",
+		"$the_cow = <<\"EOC\";\n": "",
+		"\nEOC":                   "",
+		"$eyes":                   *eyes,
+		"$tongue":                 *tongue,
 	} {
 		cow = strings.Replace(cow, old, neu, -1)
 	}
@@ -49,34 +86,65 @@ func getCowfile(name string) (string, error) {
 		}
 		name = cowpath + "/" + name + ".cow"
 	}
-
 	file, err := os.Open(name)
-	defer file.Close()
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("couldn't find cowfile at %s!", name)
+	}
 	if err != nil {
 		return "", err
 	}
+	defer file.Close()
 	out, err := ioutil.ReadAll(file)
 	return string(out), err
 }
 
 func balloon(text string) string {
 	var (
-		l    = utf8.RuneCountInString(text)
-		up   = strings.Repeat(upper, l+2)
-		down = strings.Repeat(lower, l+2)
+		r      = right
+		l      = left
+		length = 0
+		middle []string
 	)
 
 	if think {
-		return fmt.Sprintf(" %s\n%s %s %s\n %s",
-			up, tleft, text, tright, down)
+		l = tleft
+		r = tright
 	}
-	return fmt.Sprintf(" %s\n%s %s %s\n %s",
-		up, left, text, right, down)
+
+	lines := strings.Split(text, "\n")
+	for _, line := range lines {
+		if newlen := utf8.RuneCountInString(line); newlen > length {
+			length = newlen
+		}
+	}
+
+	var (
+		up   = strings.Repeat(upper, length+2)
+		down = strings.Repeat(lower, length+2)
+	)
+
+	for _, line := range lines {
+		middle = append(middle,
+			fmt.Sprintf("%s %s %s%s", l, line,
+				strings.Repeat(" ", length-len(line)), r))
+	}
+
+	return fmt.Sprintf(" %s\n%s\n %s",
+		up, strings.Join(middle, "\n"), down)
 }
 
 func main() {
 	flag.Parse()
-	tosay := strings.Join(flag.Args(), " ")
+	var tosay string
+	if args := flag.Args(); len(args) != 0 {
+		tosay = strings.Join(flag.Args(), " ")
+	} else {
+		out, err := ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+		}
+		tosay = string(out)
+	}
 	cow, err := getCowfile(*cowfile)
 	if err != nil {
 		fmt.Println(err)
