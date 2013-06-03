@@ -6,6 +6,7 @@ pkgdesc='Cowsay replacement.'
 url='https://github.com/neeee/tewisay'
 license=('CC0')
 makedepends=('go')
+optdepends=('cowsay: default cowfiles')
 arch=('i686' 'x86_64' 'ARM')
 source=('git://github.com/neeee/tewisay.git')
 md5sums=('SKIP')
