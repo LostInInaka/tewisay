@@ -12,6 +12,7 @@ import (
 
 var (
 	cowfile = flag.String("f", "default", "what cowfile to use")
+	list    = flag.Bool("l", false, "list cowfiles")
 	think   = path.Base(os.Args[0]) == "tewithink"
 
 	tongue = flag.String("T", "  ", "change tounges")
@@ -78,26 +79,6 @@ func prepare(cow string) string {
 	return strings.Replace(cow, "$thoughts", line, -1)
 }
 
-func getCowfile(name string) (string, error) {
-	if !strings.Contains(name, "/") {
-		cowpath := os.Getenv("COWPATH")
-		if cowpath == "" {
-			cowpath = "/usr/share/cows"
-		}
-		name = cowpath + "/" + name + ".cow"
-	}
-	file, err := os.Open(name)
-	if os.IsNotExist(err) {
-		return "", fmt.Errorf("couldn't find cowfile at %s!", name)
-	}
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-	out, err := ioutil.ReadAll(file)
-	return string(out), err
-}
-
 func balloon(text string) string {
 	var (
 		r      = right
@@ -133,8 +114,55 @@ func balloon(text string) string {
 		up, strings.Join(middle, "\n"), down)
 }
 
+func getCowfile(name string) (string, error) {
+	if !strings.Contains(name, "/") {
+		cowpath := os.Getenv("COWPATH")
+		if cowpath == "" {
+			cowpath = "/usr/share/cows"
+		}
+		name = cowpath + "/" + name + ".cow"
+	}
+	file, err := os.Open(name)
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("couldn't find cowfile at %s!", name)
+	}
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	out, err := ioutil.ReadAll(file)
+	return string(out), err
+}
+
+func listCowfiles() {
+	cowpath := os.Getenv("COWPATH")
+	if cowpath == "" {
+		cowpath = "/usr/share/cows"
+	}
+	files, err := ioutil.ReadDir(cowpath)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	var cows []string
+	for _, file := range files {
+		if !(path.Ext(file.Name()) == ".cow") {
+			continue
+		}
+		cows = append(cows,
+			strings.TrimSuffix(file.Name(), ".cow"))
+	}
+	fmt.Printf("Cow files in %s:\n", cowpath)
+	fmt.Println(strings.Join(cows, " "))
+}
+
 func main() {
 	flag.Parse()
+	if *list {
+		listCowfiles()
+		return
+	}
+
 	var tosay string
 	if args := flag.Args(); len(args) != 0 {
 		tosay = strings.Join(flag.Args(), " ")
