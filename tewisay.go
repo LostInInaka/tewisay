@@ -69,10 +69,9 @@ func balloon(text string) string {
 	if think {
 		return fmt.Sprintf(" %s\n%s %s %s\n %s",
 			up, tleft, text, tright, down)
-	} else {
-		return fmt.Sprintf(" %s\n%s %s %s\n %s",
-			up, left, text, right, down)
 	}
+	return fmt.Sprintf(" %s\n%s %s %s\n %s",
+		up, left, text, right, down)
 }
 
 func main() {
