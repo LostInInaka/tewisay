@@ -80,6 +80,8 @@ func prepare(cow string) string {
 }
 
 func balloon(text string) string {
+	text = strings.Replace(text, "\t", "    ", -1)
+
 	var (
 		r      = right
 		l      = left
