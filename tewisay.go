@@ -171,7 +171,7 @@ func main() {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 		}
-		tosay = string(out)
+		tosay = strings.TrimSpace(string(out))
 	}
 	cow, err := getCowfile(*cowfile)
 	if err != nil {
