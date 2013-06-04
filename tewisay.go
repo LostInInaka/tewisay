@@ -76,6 +76,12 @@ var borders = map[string]border{
 		"┗", "━", "┛",
 		"╲",
 	},
+	"rounded": {
+		"╭", "─", "╮",
+		"│ ", " │",
+		"╰", "─", "╯",
+		"╲",
+	},
 }
 
 func balloon(text string, b border) string {
