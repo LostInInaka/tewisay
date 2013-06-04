@@ -47,11 +47,11 @@ const (
 
 	line  = "\\"
 	left  = "|"
-	right = "\x1b[0m|"
+	right = "|"
 
 	tline  = "o"
 	tleft  = "("
-	tright = "\x1b[0m)"
+	tright = ")"
 )
 
 func balloon(text string) string {
@@ -59,10 +59,10 @@ func balloon(text string) string {
 	text = strings.Trim(text, "\n")
 
 	var (
-		r      = right
-		l      = left
 		length = 0
 		middle []string
+		r      = right
+		l      = left
 	)
 
 	if think {
@@ -82,10 +82,14 @@ func balloon(text string) string {
 		down = strings.Repeat(lower, length+2)
 	)
 
+	var lastEscs []string
 	for _, line := range lines {
-		middle = append(middle,
-			fmt.Sprintf("%s %s %s%s", l, line,
-				strings.Repeat(" ", length-countRunes(line)), r))
+		s := fmt.Sprintf("%s %s%s \x1b[0m%s%s", l,
+			strings.Join(lastEscs, ""), line,
+			strings.Repeat(" ", length-countRunes(line)), r)
+
+		middle = append(middle, s)
+		lastEscs = escRxp.FindAllString(line, -1)
 	}
 
 	return fmt.Sprintf(" %s\n%s\n %s",
