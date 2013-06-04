@@ -204,7 +204,7 @@ func main() {
 		for k, _ := range borders {
 			l = append(l, k)
 		}
-		fmt.Println("Availible borders:",
+		fmt.Println("Availible borders:\n",
 			strings.Join(l, " "))
 		return
 	}
