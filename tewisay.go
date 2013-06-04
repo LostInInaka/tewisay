@@ -92,6 +92,12 @@ func balloon(text string) string {
 		up, strings.Join(middle, "\n"), down)
 }
 
+func replaceVar(s string, v string, r string) string {
+	s = strings.Replace(s, "${"+v+"}", r, -1)
+	s = strings.Replace(s, "$"+v, r, -1)
+	return s
+}
+
 func prepare(cow string) string {
 	// fuck.
 	switch {
@@ -115,19 +121,28 @@ func prepare(cow string) string {
 		*eyes = ".."
 	}
 
-	for old, neu := range map[string]string{
-		"$the_cow = <<EOC;\n":     "",
-		"$the_cow = <<\"EOC\";\n": "",
-		"\nEOC":                   "",
-		"$eyes":                   *eyes,
-		"$tongue":                 *tongue,
-	} {
-		cow = strings.Replace(cow, old, neu, -1)
+	var ncow []string
+	for _, line := range strings.Split(cow, "\n") {
+		switch {
+		case strings.HasPrefix(line, "$the_cow"):
+		case strings.HasPrefix(line, "EOC"):
+		case strings.HasPrefix(line, "#"):
+		default:
+			ncow = append(ncow, line)
+		}
 	}
+
+	// oh god
+	cow = strings.Join(ncow, "\n")
+	cow = strings.Replace(cow, "\\\\", "\\", -1)
+	cow = strings.Replace(cow, "\\@", "@", -1)
+	cow = replaceVar(cow, "eyes", *eyes)
+	cow = replaceVar(cow, "tongue", *tongue)
+
 	if think {
-		return strings.Replace(cow, "$thoughts", tline, -1)
+		return replaceVar(cow, "thoughts", tline)
 	}
-	return strings.Replace(cow, "$thoughts", line, -1)
+	return replaceVar(cow, "thoughts", line)
 }
 
 func getCowfile(name string) (string, error) {
