@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"unicode"
 )
@@ -28,18 +29,68 @@ var (
 	young    = flag.Bool("y", false, "young")
 )
 
+var escRxp = regexp.MustCompile(`\x1B\[[0-9;]*[a-zA-Z]`)
+
+func countRunes(s string) (n int) {
+	s = escRxp.ReplaceAllString(s, "")
+	for _, r := range s {
+		if unicode.IsGraphic(r) && !(unicode.IsMark(r)) {
+			n++
+		}
+	}
+	return n
+}
+
 const (
 	upper = "_"
 	lower = "─"
 
 	line  = "\\"
 	left  = "|"
-	right = "|"
+	right = "\x1b[0m|"
 
 	tline  = "o"
 	tleft  = "("
-	tright = ")"
+	tright = "\x1b[0m)"
 )
+
+func balloon(text string) string {
+	text = strings.Replace(text, "\t", "    ", -1)
+	text = strings.Trim(text, "\n")
+
+	var (
+		r      = right
+		l      = left
+		length = 0
+		middle []string
+	)
+
+	if think {
+		l = tleft
+		r = tright
+	}
+
+	lines := strings.Split(text, "\n")
+	for _, line := range lines {
+		if newlen := countRunes(line); newlen > length {
+			length = newlen
+		}
+	}
+
+	var (
+		up   = strings.Repeat(upper, length+2)
+		down = strings.Repeat(lower, length+2)
+	)
+
+	for _, line := range lines {
+		middle = append(middle,
+			fmt.Sprintf("%s %s %s%s", l, line,
+				strings.Repeat(" ", length-countRunes(line)), r))
+	}
+
+	return fmt.Sprintf(" %s\n%s\n %s",
+		up, strings.Join(middle, "\n"), down)
+}
 
 func prepare(cow string) string {
 	// fuck.
@@ -77,54 +128,6 @@ func prepare(cow string) string {
 		return strings.Replace(cow, "$thoughts", tline, -1)
 	}
 	return strings.Replace(cow, "$thoughts", line, -1)
-}
-
-func countRunes(s string) (n int) {
-	fmt.Println(s)
-	for _, r := range s {
-		if unicode.IsGraphic(r) && !(unicode.IsMark(r)) {
-			n++
-		}
-	}
-	return n
-}
-
-func balloon(text string) string {
-	text = strings.Replace(text, "\t", "    ", -1)
-
-	var (
-		r      = right
-		l      = left
-		length = 0
-		middle []string
-	)
-
-	if think {
-		l = tleft
-		r = tright
-	}
-
-	lines := strings.Split(text, "\n")
-	for _, line := range lines {
-		if newlen := countRunes(line); newlen > length {
-			fmt.Println(newlen)
-			length = newlen
-		}
-	}
-
-	var (
-		up   = strings.Repeat(upper, length+2)
-		down = strings.Repeat(lower, length+2)
-	)
-
-	for _, line := range lines {
-		middle = append(middle,
-			fmt.Sprintf("%s %s %s%s", l, line,
-				strings.Repeat(" ", length-countRunes(line)), r))
-	}
-
-	return fmt.Sprintf(" %s\n%s\n %s",
-		up, strings.Join(middle, "\n"), down)
 }
 
 func getCowfile(name string) (string, error) {
@@ -184,7 +187,7 @@ func main() {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 		}
-		tosay = strings.TrimSpace(string(out))
+		tosay = string(out)
 	}
 	cow, err := getCowfile(*cowfile)
 	if err != nil {
