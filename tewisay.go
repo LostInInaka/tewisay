@@ -7,7 +7,7 @@ import (
 	"os"
 	"path"
 	"strings"
-	"unicode/utf8"
+	"unicode"
 )
 
 var (
@@ -79,6 +79,16 @@ func prepare(cow string) string {
 	return strings.Replace(cow, "$thoughts", line, -1)
 }
 
+func countRunes(s string) (n int) {
+	fmt.Println(s)
+	for _, r := range s {
+		if unicode.IsGraphic(r) && !(unicode.IsMark(r)) {
+			n++
+		}
+	}
+	return n
+}
+
 func balloon(text string) string {
 	text = strings.Replace(text, "\t", "    ", -1)
 
@@ -96,7 +106,8 @@ func balloon(text string) string {
 
 	lines := strings.Split(text, "\n")
 	for _, line := range lines {
-		if newlen := utf8.RuneCountInString(line); newlen > length {
+		if newlen := countRunes(line); newlen > length {
+			fmt.Println(newlen)
 			length = newlen
 		}
 	}
@@ -109,7 +120,7 @@ func balloon(text string) string {
 	for _, line := range lines {
 		middle = append(middle,
 			fmt.Sprintf("%s %s %s%s", l, line,
-				strings.Repeat(" ", length-len(line)), r))
+				strings.Repeat(" ", length-countRunes(line)), r))
 	}
 
 	return fmt.Sprintf(" %s\n%s\n %s",
