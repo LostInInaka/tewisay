@@ -128,7 +128,7 @@ func RuneWidth(r rune) int {
 	}
 
 	if IsAmbiguousWidth(r) {
-		return 2
+		return 1
 	}
 
 	if r >= 0x1100 &&

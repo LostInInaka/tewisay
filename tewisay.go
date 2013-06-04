@@ -19,7 +19,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/neeee/tewisay/swidth"
+	"./swidth"
 )
 
 var (
