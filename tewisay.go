@@ -96,8 +96,9 @@ var borders = map[string]border{
 }
 
 func balloon(text string, b border) string {
+	text = strings.TrimSuffix(text, "\x1b[m")
+	text = strings.TrimRight(text, " \t")
 	text = strings.Trim(text, "\n")
-	text = strings.TrimSuffix(text, "\n\x1b[0m")
 
 	var (
 		maxlen int
