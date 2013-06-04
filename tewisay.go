@@ -13,33 +13,13 @@ import (
 
 var (
 	cowfile = flag.String("f", "default", "what cowfile to use")
-	list    = flag.Bool("l", false, "list cowfiles")
-	think   = path.Base(os.Args[0]) == "tewithink"
+	_border = flag.String("b", "unicode", "which border to use")
+
+	list  = flag.Bool("l", false, "list cowfiles")
+	listb = flag.Bool("lb", false, "list borders")
 
 	tongue = flag.String("T", "  ", "change tounges")
 	eyes   = flag.String("e", "oo", "change tounges")
-
-	borg     = flag.Bool("b", false, "borg")
-	dead     = flag.Bool("d", false, "dead")
-	greedy   = flag.Bool("g", false, "greedy")
-	paranoid = flag.Bool("p", false, "noided")
-	stoned   = flag.Bool("s", false, "stoned")
-	tired    = flag.Bool("t", false, "tired")
-	wired    = flag.Bool("w", false, "wired")
-	young    = flag.Bool("y", false, "young")
-)
-
-const (
-	upper = "_"
-	lower = "─"
-
-	line  = "\\"
-	left  = "|"
-	right = "|"
-
-	tline  = "o"
-	tleft  = "("
-	tright = ")"
 )
 
 var escRxp = regexp.MustCompile(`\x1B\[[0-9;]*[a-zA-Z]`)
@@ -57,21 +37,55 @@ func countRunes(s string) int {
 	return n
 }
 
-func balloon(text string) string {
+type border [9]string
+
+var borders = map[string]border{
+	/* Format:
+	top    left, middle, right,
+	middle left,         right,
+	bottom left, middle, right,
+	line, */
+
+	"say": {
+		" ", "_", " ",
+		"| ", " |",
+		" ", "─", " ",
+		"\\",
+	},
+	"classicish": {
+		" ", "_", " ",
+		"< ", " >",
+		" ", "-", " ",
+		"\\",
+	},
+	"think": {
+		" ", "_", " ",
+		"( ", " )",
+		" ", "─", " ",
+		"o",
+	},
+	"unicode": {
+		"┌", "─", "┐",
+		"│ ", " │",
+		"└", "─", "┘",
+		"╲",
+	},
+	"thick": {
+		"┏", "━", "┓",
+		"┃ ", " ┃",
+		"┗", "━", "┛",
+		"╲",
+	},
+}
+
+func balloon(text string, b border) string {
 	text = strings.Trim(text, "\n")
 	text = strings.TrimSuffix(text, "\n\x1b[0m")
 
 	var (
 		maxlen int
 		middle []string
-		r      = right
-		l      = left
 	)
-
-	if think {
-		l = tleft
-		r = tright
-	}
 
 	lines := strings.Split(text, "\n")
 	for _, line := range lines {
@@ -81,22 +95,25 @@ func balloon(text string) string {
 	}
 
 	var (
-		up   = strings.Repeat(upper, maxlen)
-		down = strings.Repeat(lower, maxlen)
+		up   = strings.Repeat(b[1], maxlen)
+		down = strings.Repeat(b[6], maxlen)
 	)
 
 	var lastEscs []string
 	for _, line := range lines {
-		s := fmt.Sprintf("%s %s%s \x1b[0m%s%s", l,
+		s := fmt.Sprintf("%s%s%s\x1b[0m%s%s", b[3],
 			strings.Join(lastEscs, ""), line,
-			strings.Repeat(" ", maxlen-countRunes(line)), r)
+			strings.Repeat(" ", maxlen-countRunes(line)), b[4])
 
 		middle = append(middle, s)
 		lastEscs = escRxp.FindAllString(line, -1)
 	}
 
-	return fmt.Sprintf(" %s\n%s\n %s",
-		up, strings.Join(middle, "\n"), down)
+	return fmt.Sprintf("%s%s%s\n"+
+		"%s\n%s%s%s",
+		b[0], up, b[2],
+		strings.Join(middle, "\n"),
+		b[5], down, b[7])
 }
 
 func replaceVar(s string, v string, r string) string {
@@ -105,29 +122,7 @@ func replaceVar(s string, v string, r string) string {
 	return s
 }
 
-func prepare(cow string) string {
-	// fuck.
-	switch {
-	case *borg:
-		*eyes = "=="
-	case *dead:
-		*eyes = "xx"
-		*tongue = "U "
-	case *greedy:
-		*eyes = "$$"
-	case *paranoid:
-		*eyes = "@@"
-	case *stoned:
-		*eyes = "**"
-		*tongue = "U "
-	case *tired:
-		*eyes = "--"
-	case *wired:
-		*eyes = "OO"
-	case *young:
-		*eyes = ".."
-	}
-
+func prepare(cow string, b border) string {
 	// :c
 	var ncow []string
 	for _, line := range strings.Split(cow, "\n") {
@@ -147,10 +142,7 @@ func prepare(cow string) string {
 	cow = replaceVar(cow, "eyes", *eyes)
 	cow = replaceVar(cow, "tongue", *tongue)
 
-	if think {
-		return replaceVar(cow, "thoughts", tline)
-	}
-	return replaceVar(cow, "thoughts", line)
+	return replaceVar(cow, "thoughts", b[8])
 }
 
 func getCowfile(name string) (string, error) {
@@ -197,8 +189,17 @@ func listCowfiles() {
 
 func main() {
 	flag.Parse()
-	if *list {
+	switch {
+	case *list:
 		listCowfiles()
+		return
+	case *listb:
+		var l []string
+		for k, _ := range borders {
+			l = append(l, k)
+		}
+		fmt.Println("Availible borders:",
+			strings.Join(l, " "))
 		return
 	}
 
@@ -212,10 +213,25 @@ func main() {
 		}
 		tosay = string(out)
 	}
+
 	cow, err := getCowfile(*cowfile)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("%s\n%s", balloon(tosay), prepare(cow))
+
+	var b border
+	if path.Base(os.Args[0]) == "tewithink" {
+		b = borders["think"]
+	} else {
+		nb, ok := borders[*_border]
+		if !ok {
+			fmt.Printf("error: no border called \"%s\".\n"+
+				"pass -lb to list borders\n", *_border)
+			return
+		}
+		b = nb
+	}
+
+	fmt.Printf("%s\n%s", balloon(tosay, b), prepare(cow, b))
 }
