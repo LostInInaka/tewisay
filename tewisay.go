@@ -55,7 +55,7 @@ const (
 )
 
 func balloon(text string) string {
-	text = strings.Replace(text, "\t", "    ", -1)
+	text = strings.Replace(text, "\t", "        ", -1)
 	text = strings.Trim(text, "\n")
 	text = strings.TrimSuffix(text, "\n\x1b[0m")
 
