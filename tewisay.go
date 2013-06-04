@@ -57,7 +57,7 @@ const (
 func balloon(text string) string {
 	text = strings.Replace(text, "\t", "    ", -1)
 	text = strings.Trim(text, "\n")
-	text = strings.TrimRight(text, "\n\x1b[0m")
+	text = strings.TrimSuffix(text, "\n\x1b[0m")
 
 	var (
 		length = 0
@@ -126,6 +126,7 @@ func prepare(cow string) string {
 		*eyes = ".."
 	}
 
+	// :c
 	var ncow []string
 	for _, line := range strings.Split(cow, "\n") {
 		switch {
@@ -136,9 +137,9 @@ func prepare(cow string) string {
 			ncow = append(ncow, line)
 		}
 	}
+	cow = strings.Join(ncow, "\n")
 
 	// oh god
-	cow = strings.Join(ncow, "\n")
 	cow = strings.Replace(cow, "\\\\", "\\", -1)
 	cow = strings.Replace(cow, "\\@", "@", -1)
 	cow = replaceVar(cow, "eyes", *eyes)
