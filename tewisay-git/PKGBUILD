@@ -1,6 +1,6 @@
 pkgname=tewisay-git
 _gitname='tewisay'
-pkgver=0.22.7db48b6
+pkgver=0.28.79ee8d3
 pkgrel=1
 pkgdesc='Cowsay replacement with unicode and partial ansi escape support.'
 url='https://github.com/neeee/tewisay'

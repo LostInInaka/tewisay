@@ -161,18 +161,8 @@ func prepare(cow string, b border) string {
 	return replaceVar(cow, "thoughts", b[8])
 }
 
-func getCowfile(name string) (string, error) {
-	if !strings.Contains(name, "/") {
-		cowpath := os.Getenv("COWPATH")
-		if cowpath == "" {
-			cowpath = "/usr/share/cows"
-		}
-		name = cowpath + "/" + name + ".cow"
-	}
-	file, err := os.Open(name)
-	if os.IsNotExist(err) {
-		return "", fmt.Errorf("couldn't find cowfile at %s!", name)
-	}
+func readCowfile(path string) (string, error) {
+	file, err := os.Open(path)
 	if err != nil {
 		return "", err
 	}
@@ -181,26 +171,54 @@ func getCowfile(name string) (string, error) {
 	return string(out), err
 }
 
-func listCowfiles() {
-	cowpath := os.Getenv("COWPATH")
-	if cowpath == "" {
-		cowpath = "/usr/share/cows"
+func getCowfile(name string) (string, error) {
+	if strings.Contains(name, "/") {
+		out, err := readCowfile(name)
+		if err == nil {
+			return out, nil
+		}
+		return "", fmt.Errorf("Could not find %s cowfile!", name)
 	}
-	files, err := ioutil.ReadDir(cowpath)
-	if err != nil {
-		fmt.Println(err)
-		return
+
+	cowpaths := os.Getenv("COWPATH")
+	if cowpaths == "" {
+		cowpaths = "/usr/share/cows"
 	}
-	var cows []string
-	for _, file := range files {
-		if !(path.Ext(file.Name()) == ".cow") {
+
+	for _, cowpath := range strings.Split(cowpaths, ":") {
+		name := cowpath + "/" + name + ".cow"
+		out, err := readCowfile(name)
+		if os.IsNotExist(err) {
 			continue
 		}
-		cows = append(cows,
-			strings.TrimSuffix(file.Name(), ".cow"))
+		if err == nil {
+			return string(out), err
+		}
 	}
-	fmt.Printf("Cow files in %s:\n", cowpath)
-	fmt.Println(strings.Join(cows, " "))
+	return "", fmt.Errorf("Could not find %s cowfile!", name)
+}
+
+func listCowfiles() {
+	cowpaths := os.Getenv("COWPATH")
+	if cowpaths == "" {
+		cowpaths = "/usr/share/cows"
+	}
+	for _, cowpath := range strings.Split(cowpaths, ":") {
+		files, err := ioutil.ReadDir(cowpath)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return
+		}
+		var cows []string
+		for _, file := range files {
+			if path.Ext(file.Name()) == ".cow" {
+				cows = append(cows,
+					strings.TrimSuffix(file.Name(), ".cow"))
+			}
+		}
+		fmt.Printf("Cow files in %s:\n", cowpath)
+		fmt.Println(strings.Join(cows, " "))
+	}
 }
 
 func main() {
