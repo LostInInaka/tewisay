@@ -26,5 +26,8 @@ package() {
 	install -D -m755 tewisay  "$pkgdir/usr/bin/tewisay"
 	install -D -m644 _tewisay "$pkgdir/usr/share/zsh/site-functions/_tewisay"
 	install -D -m644 COPYING  "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+	install -D -m644 cows/COPYING \
+		"$pkgdir/usr/share/licenses/$pkgname/COPYING.tewis"
+	install -D -m644 cows "$pkgdir/usr/share/cows"
 	ln -s "tewisay" "$pkgdir/usr/bin/tewithink"
 }
