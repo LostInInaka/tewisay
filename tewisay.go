@@ -18,7 +18,8 @@ import (
 	"path"
 	"regexp"
 	"strings"
-	"unicode"
+
+	"github.com/neeee/tewisay/swidth"
 )
 
 var (
@@ -40,8 +41,8 @@ func countRunes(s string) int {
 	for _, r := range s {
 		if r == '\t' {
 			n += 8 - (n % 8)
-		} else if unicode.IsGraphic(r) && !(unicode.IsMark(r)) {
-			n++
+		} else {
+			n += swidth.RuneWidth(r)
 		}
 	}
 	return n
