@@ -29,18 +29,6 @@ var (
 	young    = flag.Bool("y", false, "young")
 )
 
-var escRxp = regexp.MustCompile(`\x1B\[[0-9;]*[a-zA-Z]`)
-
-func countRunes(s string) (n int) {
-	s = escRxp.ReplaceAllString(s, "")
-	for _, r := range s {
-		if unicode.IsGraphic(r) && !(unicode.IsMark(r)) {
-			n++
-		}
-	}
-	return n
-}
-
 const (
 	upper = "_"
 	lower = "─"
@@ -54,13 +42,27 @@ const (
 	tright = ")"
 )
 
+var escRxp = regexp.MustCompile(`\x1B\[[0-9;]*[a-zA-Z]`)
+
+func countRunes(s string) int {
+	n := 2
+	s = escRxp.ReplaceAllString(s, "")
+	for _, r := range s {
+		if r == '\t' {
+			n += 8 - (n % 8)
+		} else if unicode.IsGraphic(r) && !(unicode.IsMark(r)) {
+			n++
+		}
+	}
+	return n
+}
+
 func balloon(text string) string {
-	text = strings.Replace(text, "\t", "        ", -1)
 	text = strings.Trim(text, "\n")
 	text = strings.TrimSuffix(text, "\n\x1b[0m")
 
 	var (
-		length = 0
+		maxlen int
 		middle []string
 		r      = right
 		l      = left
@@ -73,21 +75,21 @@ func balloon(text string) string {
 
 	lines := strings.Split(text, "\n")
 	for _, line := range lines {
-		if newlen := countRunes(line); newlen > length {
-			length = newlen
+		if newlen := countRunes(line); newlen > maxlen {
+			maxlen = newlen
 		}
 	}
 
 	var (
-		up   = strings.Repeat(upper, length+2)
-		down = strings.Repeat(lower, length+2)
+		up   = strings.Repeat(upper, maxlen)
+		down = strings.Repeat(lower, maxlen)
 	)
 
 	var lastEscs []string
 	for _, line := range lines {
 		s := fmt.Sprintf("%s %s%s \x1b[0m%s%s", l,
 			strings.Join(lastEscs, ""), line,
-			strings.Repeat(" ", length-countRunes(line)), r)
+			strings.Repeat(" ", maxlen-countRunes(line)), r)
 
 		middle = append(middle, s)
 		lastEscs = escRxp.FindAllString(line, -1)
