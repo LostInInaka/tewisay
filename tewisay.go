@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	cowfile = flag.String("f", "default", "what cowfile to use")
+	cowfile = flag.String("f", "tes", "what cowfile to use")
 	_border = flag.String("b", "unicode", "which border to use")
 
 	list  = flag.Bool("l", false, "list cowfiles")
