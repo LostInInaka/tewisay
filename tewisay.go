@@ -48,48 +48,48 @@ func countRunes(s string) int {
 	return n
 }
 
-type border [9]string
+type border [10]string
 
 var borders = map[string]border{
 	/* Format:
-	top    left, middle, right,
-	middle left,         right,
-	bottom left, middle, right,
+	top    left, middle,  right,
+	middle left, padding, right,
+	bottom left, middle,  right,
 	line, */
 
 	"say": {
 		" ", "_", " ",
-		"| ", " |",
+		"|", " ", "|",
 		" ", "─", " ",
 		"\\",
 	},
 	"classicish": {
 		" ", "_", " ",
-		"< ", " >",
+		"<", " ", ">",
 		" ", "-", " ",
 		"\\",
 	},
 	"think": {
 		" ", "_", " ",
-		"( ", " )",
+		"(", " ", ")",
 		" ", "─", " ",
 		"o",
 	},
 	"unicode": {
 		"┌", "─", "┐",
-		"│ ", " │",
+		"│", " ", "│",
 		"└", "─", "┘",
 		"╲",
 	},
 	"thick": {
 		"┏", "━", "┓",
-		"┃ ", " ┃",
+		"┃", " ", "┃",
 		"┗", "━", "┛",
 		"╲",
 	},
 	"rounded": {
 		"╭", "─", "╮",
-		"│ ", " │",
+		"│", " ", "│",
 		"╰", "─", "╯",
 		"╲",
 	},
@@ -114,24 +114,25 @@ func balloon(text string, b border) string {
 
 	var (
 		up   = strings.Repeat(b[1], maxlen)
-		down = strings.Repeat(b[6], maxlen)
+		down = strings.Repeat(b[7], maxlen)
 	)
 
 	var lastEscs []string
 	for _, line := range lines {
-		s := fmt.Sprintf("%s%s%s\x1b[0m%s%s", b[3],
+		s := fmt.Sprintf("%s%s\x1b[0m%s",
 			strings.Join(lastEscs, ""), line,
-			strings.Repeat(" ", maxlen-countRunes(line)), b[4])
+			strings.Repeat(" ", maxlen-countRunes(line)))
 
-		middle = append(middle, s)
+		middle = append(middle, fmt.Sprintf("%s%s%s%s%s",
+			b[3], b[4], s, b[4], b[5]))
 		lastEscs = escRxp.FindAllString(line, -1)
 	}
-
 	return fmt.Sprintf("%s%s%s\n"+
-		"%s\n%s%s%s",
+		"%s\n"+
+		"%s%s%s",
 		b[0], up, b[2],
 		strings.Join(middle, "\n"),
-		b[5], down, b[7])
+		b[6], down, b[8])
 }
 
 func replaceVar(s string, v string, r string) string {
@@ -160,7 +161,7 @@ func prepare(cow string, b border) string {
 	cow = replaceVar(cow, "eyes", *eyes)
 	cow = replaceVar(cow, "tongue", *tongue)
 
-	return replaceVar(cow, "thoughts", b[8])
+	return replaceVar(cow, "thoughts", b[9])
 }
 
 func readCowfile(path string) (string, error) {
