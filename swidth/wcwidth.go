@@ -1,3 +1,4 @@
+// Package swidth gets the real width of runes
 // taken fron https://codereview.appspot.com/6782117/patch/22001/23001
 package swidth
 
@@ -154,16 +155,4 @@ func IsAmbiguousWidth(r rune) bool {
 		}
 	}
 	return false
-}
-
-func StringWidth(s string) int {
-	w, width := 0, 0
-	for _, r := range []rune(s) {
-		w = RuneWidth(r)
-		if w < 0 {
-			return -1
-		}
-		width += w
-	}
-	return width
 }
