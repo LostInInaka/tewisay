@@ -33,21 +33,6 @@ var (
 	eyes   = flag.String("e", "oo", "change tounges")
 )
 
-var escRxp = regexp.MustCompile(`\x1B\[[0-9;]*[a-zA-Z]`)
-
-func countRunes(s string) int {
-	n := 2
-	s = escRxp.ReplaceAllString(s, "")
-	for _, r := range s {
-		if r == '\t' {
-			n += 8 - (n % 8)
-		} else {
-			n += swidth.RuneWidth(r)
-		}
-	}
-	return n
-}
-
 type border [10]string
 
 var borders = map[string]border{
@@ -93,6 +78,21 @@ var borders = map[string]border{
 		"╰", "─", "╯",
 		"╲",
 	},
+}
+
+var escRxp = regexp.MustCompile(`\x1B\[[0-9;]*[a-zA-Z]`)
+
+func countRunes(s string) int {
+	n := 2
+	s = escRxp.ReplaceAllString(s, "")
+	for _, r := range s {
+		if r == '\t' {
+			n += 8 - (n % 8)
+		} else {
+			n += swidth.RuneWidth(r)
+		}
+	}
+	return n
 }
 
 func balloon(text string, b border) string {
