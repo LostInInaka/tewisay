@@ -13,5 +13,5 @@ Features
 TODO
 ----
 * (maybe?) Wrapping
-* Better support for cowfile using perl (or drop them)
+* Better support for cowfiles using perl (or drop them)
 * Easier building on other distros
