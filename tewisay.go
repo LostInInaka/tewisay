@@ -19,18 +19,20 @@ import (
 	"regexp"
 	"strings"
 
+	// TODO: don't use local import path
 	"./swidth"
 )
 
 var (
 	cowfile = flag.String("f", "tes", "what cowfile to use")
-	_border = flag.String("b", "unicode", "which border to use")
+
+	borderStyle = flag.String("b", "unicode", "which border to use")
 
 	list  = flag.Bool("l", false, "list cowfiles")
 	listb = flag.Bool("lb", false, "list borders")
 
 	tongue = flag.String("T", "  ", "change tounges")
-	eyes   = flag.String("e", "oo", "change tounges")
+	eyes   = flag.String("e", "oo", "change eyes")
 )
 
 type border [10]string
@@ -127,6 +129,7 @@ func balloon(text string, b border) string {
 			b[3], b[4], s, b[4], b[5]))
 		lastEscs = escRxp.FindAllString(line, -1)
 	}
+
 	return fmt.Sprintf("%s%s%s\n"+
 		"%s\n"+
 		"%s%s%s",
@@ -261,10 +264,10 @@ func main() {
 	if path.Base(os.Args[0]) == "tewithink" {
 		b = borders["think"]
 	} else {
-		nb, ok := borders[*_border]
+		nb, ok := borders[*borderStyle]
 		if !ok {
 			fmt.Printf("error: no border called \"%s\".\n"+
-				"pass -lb to list borders\n", *_border)
+				"pass -lb to list borders\n", *borderStyle)
 			return
 		}
 		b = nb

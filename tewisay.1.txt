@@ -17,13 +17,6 @@ DESCRIPTION
 *tewisay* is a partial cowsay clone. It supports most cowfiles, except ones
 that use perl more than usual. 
 
-It's main features are:
-
-* support for ansi escape colors and unicode characters when computing 
-  width of the output text
-* more balloons to choose from beyond the default and cowthink
-* tewis
-
 OPTIONS
 -------
 *-T* 'tounge_string'::
