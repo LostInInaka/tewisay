@@ -5,10 +5,10 @@ use the -b option.
 
 Features
 --------
-* ignores ansi escape colors when getting width
-* finds correct width on all unicode characters
-* more balloon styles
-* tewis
+* Ignores ANSI escape colors when getting width
+* Finds correct width on all unicode characters
+* More balloon styles
+* Tewis
 
 TODO
 ----
