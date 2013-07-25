@@ -30,8 +30,8 @@ var (
 
 	list = flag.BoolP("list", "l", false, "list cowfiles")
 
-	tongue = flag.String("T", "  ", "change tounges")
-	eyes   = flag.String("e", "oo", "change eyes")
+	tongue = flag.StringP("tongue", "T", "  ", "change tounge")
+	eyes   = flag.StringP("eyes", "e", "oo", "change eyes")
 )
 
 type border [10]string

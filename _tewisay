@@ -4,19 +4,18 @@ local context state line
 typeset -A opt_args
 
 _arguments \
-  '-e:eye string:' \
-  '-f:cowfile:->cowfile' \
-  '-b:cowline:->cowline' \
-  '-T:tongue string:' \
-  '-h[help]' \
-  '-l[list]' \
-  ':message:' && return 0
+	'(- : *)'{-h,--help}"[show help]" \
+	'(-f --file)'{-f,--file}'[Select cowfile]: :->cowfile' \
+	'(-b --border)'{-b,--border}'[Change border]: :->cowline' \
+	'(-l --list)'{-l,--list}'[List cowfiles]' \
+	'(-e --eyes)'{-e,--eyes}'[Select eyes]:eyes' \
+	'(-T --tongue)'{-T,--tounge}':[Select tongue]:tongue'
 
 case "$state" in
-  (cowfile)
-  compadd ${=${(f)"$($service -l 2>/dev/null)"}:#*\:} || _files
-  ;;
-  (cowline)
-  compadd ${=${(f)"$($service -b list 2>/dev/null)"}:#*\:}
-  ;;
+	(cowfile)
+		compadd ${=${(f)"$($service -l 2>/dev/null)"}:#*\:} || _files
+		;;
+	(cowline)
+		compadd ${=${(f)"$($service -b list 2>/dev/null)"}:#*\:}
+		;;
 esac
