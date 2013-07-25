@@ -1,6 +1,6 @@
 pkgname=tewisay-git
 _gitname='tewisay'
-pkgver=0.43.46358cb
+pkgver=0.49.9ae12b5
 pkgrel=1
 pkgdesc='Cowsay replacement with unicode and partial ansi escape support.'
 url='https://github.com/neeee/tewisay'
@@ -18,6 +18,8 @@ pkgver() {
 
 build() {
 	cd "$srcdir/$_gitname"
+	GOPATH="$srcdir"
+	go get -d .
 	go build
 	a2x --doctype manpage --format manpage tewisay.1.txt
 }

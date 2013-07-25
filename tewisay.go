@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	// TODO: don't use local import path
-	"./swidth"
+	"github.com/neeee/tewisay/swidth"
 )
 
 var (
