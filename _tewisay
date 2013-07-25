@@ -17,6 +17,6 @@ case "$state" in
   compadd ${=${(f)"$($service -l 2>/dev/null)"}:#*\:} || _files
   ;;
   (cowline)
-  compadd ${=${(f)"$($service -lb 2>/dev/null)"}:#*\:}
+  compadd ${=${(f)"$($service -b list 2>/dev/null)"}:#*\:}
   ;;
 esac

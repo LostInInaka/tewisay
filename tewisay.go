@@ -11,7 +11,6 @@ If not, see <http://creativecommons.org/publicdomain/zero/1.0/>. */
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -19,17 +18,17 @@ import (
 	"regexp"
 	"strings"
 
-	// TODO: don't use local import path
+	flag "github.com/neeee/pflag"
 	"github.com/neeee/tewisay/swidth"
 )
 
 var (
-	cowfile = flag.String("f", "tes", "what cowfile to use")
+	cowfile = flag.StringP("file", "f", "tes", "what cowfile to use")
 
-	borderStyle = flag.String("b", "unicode", "which border to use")
+	borderStyle = flag.StringP("border", "b", "unicode",
+		"which border to use (use \"list\" to show all)")
 
-	list  = flag.Bool("l", false, "list cowfiles")
-	listb = flag.Bool("lb", false, "list borders")
+	list = flag.BoolP("list", "l", false, "list cowfiles")
 
 	tongue = flag.String("T", "  ", "change tounges")
 	eyes   = flag.String("e", "oo", "change eyes")
@@ -233,7 +232,7 @@ func main() {
 	case *list:
 		listCowfiles()
 		return
-	case *listb:
+	case *borderStyle == "list":
 		var l []string
 		for k, _ := range borders {
 			l = append(l, k)
