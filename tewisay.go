@@ -15,7 +15,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"regexp"
 	"strings"
 
 	flag "github.com/neeee/pflag"
@@ -81,11 +80,9 @@ var borders = map[string]border{
 	},
 }
 
-var escRxp = regexp.MustCompile(`\x1B\[[0-9;]*[a-zA-Z]`)
-
 func countRunes(s string) int {
 	n := 2
-	s = escRxp.ReplaceAllString(s, "")
+	s = rmAnsiEsc(s)
 	for _, r := range s {
 		if r == '\t' {
 			n += 8 - (n % 8)
@@ -114,27 +111,24 @@ func balloon(text string, b border) string {
 	}
 
 	var (
-		up   = strings.Repeat(b[1], maxlen)
-		down = strings.Repeat(b[7], maxlen)
+		topBorder    = strings.Repeat(b[1], maxlen)
+		bottomBorder = strings.Repeat(b[7], maxlen)
 	)
 
-	var lastEscs []string
+	var esc string
 	for _, line := range lines {
-		s := fmt.Sprintf("%s%s\x1b[0m%s",
-			strings.Join(lastEscs, ""), line,
+		s := fmt.Sprintf("%s%s\x1b[0m%s", esc, line,
 			strings.Repeat(" ", maxlen-countRunes(line)))
-
-		middle = append(middle, fmt.Sprintf("%s%s%s%s%s",
-			b[3], b[4], s, b[4], b[5]))
-		lastEscs = escRxp.FindAllString(line, -1)
+		middle = append(middle, b[3]+b[4]+s+b[4]+b[5])
+		esc = lastEsc(line)
 	}
 
 	return fmt.Sprintf("%s%s%s\n"+
 		"%s\n"+
 		"%s%s%s",
-		b[0], up, b[2],
+		b[0], topBorder, b[2],
 		strings.Join(middle, "\n"),
-		b[6], down, b[8])
+		b[6], bottomBorder, b[8])
 }
 
 func replaceVar(s string, v string, r string) string {
