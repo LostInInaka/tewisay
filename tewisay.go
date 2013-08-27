@@ -228,7 +228,7 @@ func main() {
 		return
 	case *borderStyle == "list":
 		var l []string
-		for k, _ := range borders {
+		for k := range borders {
 			l = append(l, k)
 		}
 		fmt.Println("Availible borders:\n",

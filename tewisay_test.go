@@ -39,7 +39,7 @@ func TestBalloon(t *testing.T) {
 └────────────────────────────────────┘`,
 	}
 
-	for i, _ := range tests {
+	for i := range tests {
 		ret := balloon(tests[i], borders["unicode"])
 		if ret != expect[i] {
 			t.Errorf("Expected:\n%s\nGot:\n%s\n", expect[i], ret)

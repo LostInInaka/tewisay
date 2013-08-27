@@ -67,5 +67,4 @@ func lastEsc(s string) string {
 		}
 		s = s[:i]
 	}
-	return ""
 }
