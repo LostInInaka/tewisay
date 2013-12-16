@@ -18,7 +18,7 @@ import (
 	"strings"
 
 	flag "github.com/neeee/pflag"
-	"github.com/neeee/tewisay/swidth"
+	"github.com/neeee/rwidth"
 )
 
 var (
@@ -87,7 +87,7 @@ func countRunes(s string) int {
 		if r == '\t' {
 			n += 8 - (n % 8)
 		} else {
-			n += swidth.RuneWidth(r)
+			n += rwidth.Width(r)
 		}
 	}
 	return n
