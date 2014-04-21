@@ -1,0 +1,6 @@
+[submodule "pflag"]
+	path = deps/pflag
+	url = https://github.com/neeee/pflag.git
+[submodule "rwidth"]
+	path = deps/rwidth
+	url = https://github.com/neeee/rwidth.git

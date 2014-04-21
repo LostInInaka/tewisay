@@ -17,8 +17,8 @@ import (
 	"path"
 	"strings"
 
-	flag "github.com/neeee/pflag"
-	"github.com/neeee/rwidth"
+	flag "./deps/pflag"
+	"./deps/rwidth"
 )
 
 var (
